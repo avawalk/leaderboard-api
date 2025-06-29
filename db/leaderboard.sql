@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 28, 2025 at 04:44 PM
+-- Generation Time: Jun 29, 2025 at 06:00 AM
 -- Server version: 9.0.1
 -- PHP Version: 8.2.26
 
@@ -33,6 +33,7 @@ CREATE TABLE `scores` (
   `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `plays` int NOT NULL,
   `score` int NOT NULL,
+  `hi_score` int NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -45,8 +46,7 @@ CREATE TABLE `scores` (
 -- Indexes for table `scores`
 --
 ALTER TABLE `scores`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uniq_board` (`board`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
