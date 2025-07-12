@@ -23,7 +23,7 @@
           $resp['message'] = 'board not found';
         }
         else {
-          $sql = "SELECT `code`, `plays`, `score`, `hi_score` FROM `scores` WHERE `board` = ? ORDER BY `$sort_by` DESC LIMIT 10;";
+          $sql = "SELECT `code`, `plays`, `score`, `hi_score`, `screen_time` FROM `scores` WHERE `board` = ? ORDER BY `$sort_by` DESC LIMIT 10;";
           $stmt = $conn->prepare($sql);
           $stmt->execute([ $board ]);
           $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -37,6 +37,7 @@
         $code = $_POST['code'] ?? null;
         $score = $_POST['score'] ?? null;
         $secret = $_POST['secret'] ?? null;
+        $stime = $_POST['screen_time'] ?? 0;
 
         $board = $_POST['board'] ?? '<NOTFOUND>';
         $cfg = $config[$board] ?? null;
@@ -53,20 +54,21 @@
         }
         else {
             // find code
-            $stmt = $conn->prepare("SELECT `plays`, `score`, `hi_score` FROM `scores` WHERE `board` = ? AND `code` = ? LIMIT 1;");
+            $stmt = $conn->prepare("SELECT `plays`, `score`, `hi_score`, `screen_time` FROM `scores` WHERE `board` = ? AND `code` = ? LIMIT 1;");
             $stmt->execute([ $board, $code ]);
             $row = $stmt->fetch();
 
             if ($row === false) { // add new code
-              $stmt = $conn->prepare("INSERT INTO `scores` (`board`, `code`, `plays`, `score`, `hi_score`) VALUES (?, ?, ?, ?, ?);");
-              $stmt->execute([ $board, $code, 1, $score, $score ]);
+              $stmt = $conn->prepare("INSERT INTO `scores` (`board`, `code`, `plays`, `score`, `hi_score`, `screen_time`) VALUES (?, ?, ?, ?, ?, ?);");
+              $stmt->execute([ $board, $code, 1, $score, $score, $stime ]);
             }
             else { // update existing code
               $plays = $row['plays'] + 1;
               $new_score = $row['score'] + $score;
               $hi_score = $score > $row['hi_score'] ? $score : $row['hi_score'];
-              $stmt = $conn->prepare("UPDATE `scores` SET `plays` = ?, `score` = ?, `hi_score` = ?, `updated_at` = CURRENT_TIMESTAMP WHERE `board` = ? AND `code` = ?;");
-              $stmt->execute([ $plays, $new_score, $hi_score, $board, $code ]);
+              $new_stime = $row['screen_time'] + $stime;
+              $stmt = $conn->prepare("UPDATE `scores` SET `plays` = ?, `score` = ?, `hi_score` = ?, `screen_time` = ?, `updated_at` = CURRENT_TIMESTAMP WHERE `board` = ? AND `code` = ?;");
+              $stmt->execute([ $plays, $new_score, $hi_score, $new_stime, $board, $code ]);
             }
             // stamp success
             $resp['success'] = true;
