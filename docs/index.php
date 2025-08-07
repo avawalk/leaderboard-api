@@ -13,17 +13,26 @@
       'message' => null,
     ];
 
+    // validate
+    $allowed_sort_by = [ 'score', 'hi_score' ];
+    $default_sort_by = 'score';
+    $default_limit = 10;
+
     // [GET] query board
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $board = $_GET['board'] ?? '<NOTFOUND>';
-        $sort_by = $_GET['sort_by'] ?? 'score'; // score, hi_score
+        $sort_by = $_GET['sort_by'] ?? $default_sort_by;
+        $limit = $_GET['limit'] ?? $default_limit;
         $cfg = $config[$board] ?? null;
 
         if ($cfg === null) {
           $resp['message'] = 'board not found';
         }
         else {
-          $sql = "SELECT `code`, `plays`, `score`, `hi_score`, `screen_time` FROM `scores` WHERE `board` = ? ORDER BY `$sort_by` DESC LIMIT 10;";
+          if (!in_array($sort_by, $allowed_sort_by)) $sort_by = $default_sort_by;
+          if (!filter_var($limit, FILTER_VALIDATE_INT) || $limit < 1 || $limit > 1000) $limit = $default_limit;
+
+          $sql = "SELECT `code`, `plays`, `score`, `hi_score`, `screen_time` FROM `scores` WHERE `board` = ? ORDER BY `$sort_by` DESC LIMIT $limit;";
           $stmt = $conn->prepare($sql);
           $stmt->execute([ $board ]);
           $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
