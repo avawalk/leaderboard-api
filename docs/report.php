@@ -20,7 +20,7 @@
         <td>${r.hi_score}</td>
         <td>${r.plays}</td>
         <td>${r.screen_time}</td>
-        <td>${r.score / r.screen_time}</td>
+        <td>${(r.score / r.screen_time).toFixed(2)}</td>
       </tr>
       `;
     });
